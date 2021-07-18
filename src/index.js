@@ -14,8 +14,8 @@ function App() {
     )
       .then((response) => response.json())
       .then((users) => setUserList(users));
-    return console.log(userList, "users");
-  });
+    // return console.log(userList, "users");
+  }, []);
   return (
     <div>
       <Container className="d-inline-flex justify-content-center" fluid="md">

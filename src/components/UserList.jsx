@@ -13,7 +13,10 @@ import { RiDeleteBin2Line } from "react-icons/ri";
 
 function UserList(props) {
   const [selectAll, setSelectAll] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const list = props.userlist;
+  // const total = list.length;
+
   return (
     <div>
       <Container>
@@ -21,6 +24,9 @@ function UserList(props) {
           <FormControl
             placeholder="Search by Name,Email or Role"
             aria-describedby="basic-addon1"
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+            }}
           />
           <InputGroup.Text id="basic-addon2">Search</InputGroup.Text>
         </InputGroup>
@@ -31,8 +37,9 @@ function UserList(props) {
               <th>
                 <Form.Check
                   aria-label="option 1"
-                  selectAll={selectAll}
-                  setSelectAll={setSelectAll}
+                  onChange={(e) => {
+                    setSelectAll(e.target.checked);
+                  }}
                 />
               </th>
               <th>Name</th>
@@ -43,32 +50,54 @@ function UserList(props) {
           </thead>
           <tbody>
             {list &&
-              list.map((singleUser) => {
-                return (
-                  <tr key={singleUser.id}>
-                    <td>
-                      <Form.Check aria-label="option 1" />
-                    </td>
-                    <td>{singleUser.name}</td>
-                    <td>{singleUser.email}</td>
-                    <td>{singleUser.role}</td>
-                    <td>
-                      <ButtonToolbar>
-                        <ButtonGroup className="me-2" aria-label="First group">
-                          <Button variant="light">
-                            <FiEdit />
-                          </Button>
-                        </ButtonGroup>
-                        <ButtonGroup className="me-2" aria-label="Second group">
-                          <Button variant="danger">
-                            <RiDeleteBin2Line className="delete" />
-                          </Button>
-                        </ButtonGroup>
-                      </ButtonToolbar>
-                    </td>
-                  </tr>
-                );
-              })}
+              list
+                .filter((user) => {
+                  if (searchTerm === "") {
+                    return user;
+                  } else if (
+                    user.name
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase()) ||
+                    user.email
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase()) ||
+                    user.role.toLowerCase().includes(searchTerm.toLowerCase())
+                  ) {
+                    return user;
+                  }
+                })
+                .map((singleUser) => {
+                  return (
+                    <tr key={singleUser.id}>
+                      <td>
+                        <Form.Check aria-label="option 1" checked={selectAll} />
+                      </td>
+                      <td>{singleUser.name}</td>
+                      <td>{singleUser.email}</td>
+                      <td>{singleUser.role}</td>
+                      <td>
+                        <ButtonToolbar>
+                          <ButtonGroup
+                            className="me-2"
+                            aria-label="First group"
+                          >
+                            <Button variant="light">
+                              <FiEdit />
+                            </Button>
+                          </ButtonGroup>
+                          <ButtonGroup
+                            className="me-2"
+                            aria-label="Second group"
+                          >
+                            <Button variant="danger">
+                              <RiDeleteBin2Line className="delete" />
+                            </Button>
+                          </ButtonGroup>
+                        </ButtonToolbar>
+                      </td>
+                    </tr>
+                  );
+                })}
           </tbody>
         </Table>
         <Pagination size="md" className="justify-content-center">
