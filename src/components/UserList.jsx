@@ -11,7 +11,7 @@ import _ from "lodash";
 
 function UserList(props) {
   const [selectAll, setSelectAll] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  // const [searchTerm, setSearchTerm] = useState("");
   const [userPerPage, setUserPerPage] = useState();
   const [currentPage, setCurrentPage] = useState(1);
   const list = props.userlist;
@@ -46,9 +46,6 @@ function UserList(props) {
             class="form-control"
             placeholder="Search by Name,Email or Role"
             aria-describedby="basic-addon2"
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-            }}
           />
           <button type="button" class="btn btn-primary">
             Search
