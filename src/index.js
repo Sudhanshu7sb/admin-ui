@@ -22,7 +22,7 @@ function App() {
         <h1>ADMIN UI</h1>
       </Container>
       {userList ? (
-        <UserList userlist={userList} />
+        <UserList userlist={userList} setUserList={setUserList} />
       ) : (
         <>
           <Spinner animation="border" role="status">

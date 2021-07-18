@@ -1,35 +1,60 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Table from "react-bootstrap/Table";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import ButtonToolbar from "react-bootstrap/ButtonToolbar";
-import InputGroup from "react-bootstrap/InputGroup";
-import FormControl from "react-bootstrap/FormControl";
 import Container from "react-bootstrap/Container";
-import Pagination from "react-bootstrap/Pagination";
 import { FiEdit } from "react-icons/fi";
 import { RiDeleteBin2Line } from "react-icons/ri";
+import _ from "lodash";
 
 function UserList(props) {
   const [selectAll, setSelectAll] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [userPerPage, setUserPerPage] = useState();
+  const [currentPage, setCurrentPage] = useState(1);
   const list = props.userlist;
-  // const total = list.length;
+  const pageSize = 10;
+
+  useEffect(() => {
+    setUserPerPage(_(list).slice(0).take(pageSize).value());
+  }, [list]);
+  // delete User
+  const deleteUser = (userId) => {
+    const updatedListAfterDeletion = list.filter((user) => userId !== user.id);
+    props.setUserList(updatedListAfterDeletion);
+  };
+
+  const pageCount = list ? Math.ceil(list.length / pageSize) : 0;
+  if (pageCount === 1) return null;
+  const pages = _.range(1, pageCount + 1);
+
+  const changePage = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    const startIndex = (pageNumber - 1) * pageSize;
+    const paginateUser = _(list).slice(startIndex).take(pageSize).value();
+    setUserPerPage(paginateUser);
+  };
 
   return (
     <div>
       <Container>
-        <InputGroup className="mb-3 g-3">
-          <FormControl
+        <div class="input-group mb-3">
+          <input
+            type="text"
+            class="form-control"
             placeholder="Search by Name,Email or Role"
-            aria-describedby="basic-addon1"
+            aria-describedby="basic-addon2"
             onChange={(e) => {
               setSearchTerm(e.target.value);
             }}
           />
-          <InputGroup.Text id="basic-addon2">Search</InputGroup.Text>
-        </InputGroup>
+          <button type="button" class="btn btn-primary">
+            Search
+          </button>
+        </div>
+
         <h3>User List</h3>
         <Table bordered hover size="sm" responsive>
           <thead>
@@ -49,69 +74,76 @@ function UserList(props) {
             </tr>
           </thead>
           <tbody>
-            {list &&
-              list
-                .filter((user) => {
-                  if (searchTerm === "") {
-                    return user;
-                  } else if (
-                    user.name
-                      .toLowerCase()
-                      .includes(searchTerm.toLowerCase()) ||
-                    user.email
-                      .toLowerCase()
-                      .includes(searchTerm.toLowerCase()) ||
-                    user.role.toLowerCase().includes(searchTerm.toLowerCase())
-                  ) {
-                    return user;
-                  }
-                })
-                .map((singleUser) => {
-                  return (
-                    <tr key={singleUser.id}>
-                      <td>
-                        <Form.Check aria-label="option 1" checked={selectAll} />
-                      </td>
-                      <td>{singleUser.name}</td>
-                      <td>{singleUser.email}</td>
-                      <td>{singleUser.role}</td>
-                      <td>
-                        <ButtonToolbar>
-                          <ButtonGroup
-                            className="me-2"
-                            aria-label="First group"
+            {userPerPage &&
+              userPerPage.map((singleUser) => {
+                return (
+                  <tr key={singleUser.id}>
+                    <td>
+                      <Form.Check aria-label="option 1" checked={selectAll} />
+                    </td>
+                    <td>{singleUser.name}</td>
+                    <td>{singleUser.email}</td>
+                    <td>{singleUser.role}</td>
+                    <td>
+                      <ButtonToolbar>
+                        <ButtonGroup className="me-2" aria-label="First group">
+                          <Button variant="light">
+                            <FiEdit />
+                          </Button>
+                        </ButtonGroup>
+                        <ButtonGroup className="me-2" aria-label="Second group">
+                          <Button
+                            variant="danger"
+                            onClick={() => deleteUser(singleUser.id)}
                           >
-                            <Button variant="light">
-                              <FiEdit />
-                            </Button>
-                          </ButtonGroup>
-                          <ButtonGroup
-                            className="me-2"
-                            aria-label="Second group"
-                          >
-                            <Button variant="danger">
-                              <RiDeleteBin2Line className="delete" />
-                            </Button>
-                          </ButtonGroup>
-                        </ButtonToolbar>
-                      </td>
-                    </tr>
-                  );
-                })}
+                            <RiDeleteBin2Line className="delete" />
+                          </Button>
+                        </ButtonGroup>
+                      </ButtonToolbar>
+                    </td>
+                  </tr>
+                );
+              })}
           </tbody>
         </Table>
-        <Pagination size="md" className="justify-content-center">
-          <Pagination.First />
-          <Pagination.Prev />
-          <Pagination.Item>{1}</Pagination.Item>
 
-          <Pagination.Item>{2}</Pagination.Item>
-          <Pagination.Item>{3}</Pagination.Item>
-          <Pagination.Item>{4}</Pagination.Item>
-          <Pagination.Item>{5}</Pagination.Item>
-          <Pagination.Next />
-          <Pagination.Last />
-        </Pagination>
+        <div>
+          <nav aria-label="Page navigation example">
+            <ul class="pagination">
+              <li class="page-item">
+                <a class="page-link" href="##" aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" href="##">
+                  Previous
+                </a>
+              </li>
+              {pages.map((page) => (
+                <li
+                  class={
+                    page === currentPage ? "page-item active" : "page-item"
+                  }
+                >
+                  <p class="page-link" onClick={() => changePage(page)}>
+                    {page}
+                  </p>
+                </li>
+              ))}
+              <li class="page-item">
+                <a class="page-link" href="##">
+                  Next
+                </a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" href="##" aria-label="Next">
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
       </Container>
     </div>
   );
